@@ -1,23 +1,20 @@
 package com.example.tp04_api_countries;
 
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
-
 import android.content.Context;
-
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.config.Configuration;
@@ -29,7 +26,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-
 public class MainActivity extends AppCompatActivity {
 
     private EditText name;
@@ -37,12 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private Button button;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /** Permissions*/
+        /* Permissions*/
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        /** Droits d'accès au stockage*/
+        /* Droits d'accès au stockage*/
         Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -66,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                         HttpURLConnection maConnection = null;
                         BufferedReader reponse;
                         String ligneReponse;
-                        StringBuffer reponseJson = new StringBuffer();
+                        StringBuilder reponseJson = new StringBuilder();
                         try {
                             maConnection = (HttpURLConnection) new URL(url).openConnection();
                             reponse = new BufferedReader(new InputStreamReader(maConnection.getInputStream()));
@@ -74,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                                 reponseJson.append(ligneReponse);
                             reponse.close();
 
-                            /** 3. Traitement de la reponse */
+                            /* 3. Traitement de la reponse */
                             traitementReponse(reponseJson.toString());
                         } catch (MalformedURLException e) {
                             e.printStackTrace();
@@ -89,13 +86,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void traitementReponse(String unJson) {
         try {
-            /** Traitement des données */
-            JSONObject jsonObject = new JSONObject(unJson);
+            /* Traitement des données */
+            JSONObject jsonObject = new JSONArray(unJson).getJSONObject(0);
 
             if (jsonObject.length() > 0) {
                 final StringBuilder affichage = new StringBuilder();
                 affichage.append("Nom du pays : ").append(jsonObject.getString("name")).append("\n");
-                /** Thread d'accès à un élément de l'interface */
+                /* Thread d'accès à un élément de l'interface */
                 result_text.post(new Runnable() {
                     @Override
                     public void run() {
@@ -109,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         return false;
     }
 
